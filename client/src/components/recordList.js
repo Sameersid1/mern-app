@@ -11,9 +11,7 @@ const Record = (props) => {
                 <Link className="btn btn-link" to={`/edit/${props.record._id}`}>Edit</Link> |
                 <button
                     className="btn btn-link"
-                    onClick={() => {
-                        props.deleteRecord(props.record._id)
-                    }}
+                    onClick={() => props.deleteRecord(props.record._id)}
                 >
                     Delete
                 </button>
@@ -27,11 +25,10 @@ export default function RecordList() {
 
     useEffect(() => {
         async function getRecords() {
-            const response = await fetch(`${process.env.REACT_APP_YOUR_HOSTNAME}/record/`)
+            const response = await fetch("http://localhost:5000/record")
 
             if (!response.ok) {
-                const message = `An error occurred: ${response.statusText}`
-                window.alert(message)
+                window.alert(`An error occurred: ${response.statusText}`)
                 return
             }
 
@@ -40,34 +37,18 @@ export default function RecordList() {
         }
 
         getRecords()
-
-        return
-    }, [records.length])
+    }, [])
 
     async function deleteRecord(id) {
-        const result = window.confirm("Will this employee be removed from the list?")
-        if (!result) {
-            return
-        }
+        const confirmed = window.confirm("Will this employee be removed from the list?")
+        if (!confirmed) return
 
-        await fetch(`${process.env.REACT_APP_YOUR_HOSTNAME}/${id}`, {
-            method: "DELETE"
+        await fetch(`http://localhost:5000/${id}`, {
+            method: "DELETE",
         })
 
         const newRecords = records.filter((record) => record._id !== id)
         setRecords(newRecords)
-    }
-
-    function recordList() {
-        return records.map((record) => {
-            return (
-                <Record
-                    key={record._id}
-                    record={record}
-                    deleteRecord={() => deleteRecord(record._id)}
-                />
-            )
-        })
     }
 
     return (
@@ -82,7 +63,11 @@ export default function RecordList() {
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>{recordList()}</tbody>
+                <tbody>
+                    {records.map((record) => (
+                        <Record key={record._id} record={record} deleteRecord={deleteRecord} />
+                    ))}
+                </tbody>
             </table>
         </div>
     )
